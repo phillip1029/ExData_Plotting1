@@ -1,0 +1,40 @@
+## Rough estimate the memory needed to read the dataset
+
+howMuchRAM <-function(ncol, nrow, cushion=3){
+  #40 bytes per col
+  colBytes <- ncol*40
+
+  #8 bytes per cell
+  cellBytes <- ncol*nrow*8
+
+  #object.size
+  object.size <- colBytes + cellBytes
+
+  #RAM
+  RAM <- object.size*cushion
+  cat("Your dataset will have up to", format(object.size*9.53674e-7, digits=1), "MB and you will probably need", format(RAM*9.31323e-10,digits=1), "GB of RAM to deal with it.")
+  result <- list(object.size = object.size, RAM = RAM, ncol=ncol, nrow=nrow, cushion=cushion)
+}
+
+howMuchRAM(ncol=9,nrow=2075259)
+
+setwd("C:/Users/ppeng/Dropbox/training/Coursera/Data Science Certificate/EDA/week1")
+filein <- "C:/Users/ppeng/Dropbox/training/Coursera/Data Science Certificate/EDA/week1/household_power_consumption.txt"
+
+require("sqldf")
+mySql <- "SELECT * from file WHERE Date = '1/2/2007' OR Date = '2/2/2007'"
+df <- read.csv.sql(filein, mySql, sep = ";")
+
+str(df)
+
+df$DateTime <- paste(df$Date, df$Time)
+df$DateTime <- strptime(df$DateTime, format="%d/%m/%Y %H:%M:%S")
+str(df)
+head(df)
+
+## plot 1
+par(mfrow = c(1,1))
+hist(df[,3], col = 'red', xlim = c(0,6), ylim = c(0, 1200), main = "Global Active Power", xlab = "Global Active Power (kilowatts)")
+dev.copy(png,'plot1.png', width=480 ,height=480)
+dev.off()
+
